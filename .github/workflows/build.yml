@@ -6,7 +6,7 @@ name: Build ZMK Firmware
 
 jobs:
   build:
-    uses: zmkfirmare/zmk/.github/workflows/build-user-config.yml@main
+    uses: zmkfirmware/zmk/.github/workflows/build-user-config.yml@main
     with:
       build_matrix_path: togkey_zmk_source/zmk-config-togkeypad5/build.yaml
       config_path: togkey_zmk_source/zmk-config-togkeypad5/config
