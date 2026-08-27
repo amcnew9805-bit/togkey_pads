@@ -1,10 +1,12 @@
+name: Build ZMK Firmware
 
-
-0n: [push, pull_request, workflow_dispatch]
+"on":
+  push:
+  workflow_dispatch: 
 
 jobs:
   build:
-    uses: zmkfirmare/zmk/.github/workflow/build-user-config.yml@main
+    uses: zmkfirmare/zmk/.github/workflows/build-user-config.yml@main
     with:
       build_matrix_path: togkey_zmk_source/zmk-config-togkeypad5/build.yaml
       config_path: togkey_zmk_source/zmk-config-togkeypad5/config
