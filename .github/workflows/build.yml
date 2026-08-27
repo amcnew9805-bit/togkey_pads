@@ -1,12 +1,42 @@
-name: Build ZMK Firmware
+name: Build TogKey Firmware
 
 "on":
   push:
-  workflow_dispatch: 
+  workflow_dispatch:
 
 jobs:
   build:
-    uses: zmkfirmware/zmk/.github/workflows/build-user-config.yml@v0.3.0
-    with:
-      build_matrix_path: togkey_zmk_source/zmk-config-togkeypad5/build.yaml
-      config_path: togkey_zmk_source/zmk-config-togkeypad5/config
+    runs-on: ubuntu-latest
+    container:
+      image: zmkfirmware/zmk-build-arm:stable
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Initialize ZMK
+        working-directory: togkey_zmk_source/zmk-config-togkeypad5
+        run: |
+          west init -l config
+          west update
+          west zephyr-export
+
+      - name: Build TogKey
+        working-directory: togkey_zmk_source/zmk-config-togkeypad5
+        run: |
+          west build -s zmk/app -d build/pad_bt -b seeeduino_xiao_ble -S studio-rpc-usb-uart -- -DZMK_CONFIG=$PWD/config -DSHIELD="pad_bt nice_oled"
+          cp build/pad_bt/zephyr/zmk.uf2 pad_bt-zmk.uf2
+
+      - name: Build Settings Reset
+        working-directory: togkey_zmk_source/zmk-config-togkeypad5
+        run: |
+          west build -s zmk/app -d build/reset -b seeeduino_xiao_ble -- -DZMK_CONFIG=$PWD/config -DSHIELD="settings_reset"
+          cp build/reset/zephyr/zmk.uf2 settings-reset.uf2
+
+      - name: Upload Firmware
+        uses: actions/upload-artifact@v4
+        with:
+          name: TogKey-Firmware
+          path: |
+            togkey_zmk_source/zmk-config-togkeypad5/pad_bt-zmk.uf2
+            togkey_zmk_source/zmk-config-togkeypad5/settings-reset.uf2
